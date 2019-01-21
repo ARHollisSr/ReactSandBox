@@ -20,43 +20,62 @@ const list = [
   },
 ];
 
+const isSearched = searchTerm=> item=>
+  item.title.toLowerCase().includes(searchTerm.toLowerCase());
+
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      list: list,
+      list: list,      
+      searchTerm:'',
     };
-
+    this.onSearchChange = this.onSearchChange.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
   }
 
+  onSearchChange(event) { //event has the value of the input field in its target object
+    this.setState({searchTerm: event.target.value});
+  }
   onDismiss(id) {
     const isNotId = item => item.objectID !== id;
     const updatedList = this.state.list.filter(isNotId);
     this.setState({ list: updatedList });
   }
 
-  render() {
-    return(
-    <div className="App">
-      {this.state.list.map(item =>         
-          <div key = {item.objectID}>
-            <span><a href ={item.url}>{item.title}</a> &nbsp;</span>            
-            <span>{item.author}</span> &nbsp;
+  render() { 
+    return (
+      <div className="App">
+      <form>
+        <input type="text"        
+        onChange={this.onSearchChange}
+        />
+      </form>
+        {this.state.list.filter(isSearched(this.state.searchTerm)).map(item => {
+          const onHandleDismiss = () =>
+            this.onDismiss(item.objectID);
+          return (
+            <div key={item.objectID}>
+              <span>
+                <a href={item.url}>{item.title}</a> &nbsp;
+            </span>
+              <span>{item.author}</span> &nbsp;
             <span>{item.numComments}</span> &nbsp;
-            <span>{item.points}</span> &nbsp;   
+            <span>{item.points}</span> &nbsp;
             <span>
-            <button 
-            onClick={()=> this.onDismiss(item.objectID)} 
-            type="button"
-            >
-            Dismiss
+                <button
+                  onClick={()=>this.onDismiss(item.objectID)}
+                  type="button"
+                >
+                  Dismiss
             </button>
-            </span>     
-          </div>        
-      )}
-    </div>
+              </span>
+            </div>
+          );
+        }
+        )}
+      </div>
     );
   }
 }
