@@ -26,35 +26,63 @@ const isSearched = searchTerm=> item=>
 class App extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
-      list: list,      
-      searchTerm:'',
+      list: list,
+      searchTerm: '',
     };
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
   }
 
   onSearchChange(event) { //event has the value of the input field in its target object
-    this.setState({searchTerm: event.target.value});
+    this.setState({ searchTerm: event.target.value });
   }
+
   onDismiss(id) {
     const isNotId = item => item.objectID !== id;
     const updatedList = this.state.list.filter(isNotId);
     this.setState({ list: updatedList });
   }
 
-  render() { 
-    const {searchTerm, list} = this.state;
+  render() {
+    const { searchTerm, list } = this.state;
     return (
       <div className="App">
+        <Search
+          value={searchTerm}
+          onChange={this.onSearchChange}
+        />
+        <Table
+          list={list}
+          pattern={searchTerm}
+          onDismiss={this.onDismiss}
+        />
+      </div>
+    );
+  }
+}
+
+class Search extends Component {
+  render() {
+    const { value, onChange } = this.props;
+    return (
       <form>
-        <input type="text"   
-        value={searchTerm}     
-        onChange={this.onSearchChange}
+        <input
+          typer="text"
+          value={value}
+          onChange={onChange}
         />
       </form>
-        {list.filter(isSearched(searchTerm)).map(item => {
+    );
+  }
+}
+
+class Table extends Component {
+  render() {
+    const { list, pattern, onDismiss } = this.props;
+    return (
+      <div>
+        {list.filter(isSearched(pattern)).map(item => {
           const onHandleDismiss = () =>
             this.onDismiss(item.objectID);
           return (
@@ -67,7 +95,7 @@ class App extends Component {
             <span>{item.points}</span> &nbsp;
             <span>
                 <button
-                  onClick={()=>this.onDismiss(item.objectID)}
+                  onClick={() => onDismiss(item.objectID)}
                   type="button"
                 >
                   Dismiss
