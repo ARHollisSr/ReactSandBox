@@ -64,6 +64,21 @@ class App extends Component {
   }
 }
 
+class Button extends Component {
+  render() {
+    const { onClick, className = '', children, } = this.props;
+    return (
+      <button
+        onClick={onClick}
+        className={className}
+        type="button"
+      >
+        {children}
+      </button>
+    );
+  }
+}
+
 class Search extends Component {
   render() {
     const { value, onChange, children } = this.props;
@@ -96,13 +111,10 @@ class Table extends Component {
             <span>{item.numComments}</span> &nbsp;
             <span>{item.points}</span> &nbsp;
             <span>
-                <button
-                  onClick={() => onDismiss(item.objectID)}
-                  type="button"
-                >
-                  Dismiss
-            </button>
-              </span>
+              <Button onClick={()=>onDismiss(item.objectID)}>
+              Dismiss
+              </Button>   
+            </span>
             </div>
           );
         }
