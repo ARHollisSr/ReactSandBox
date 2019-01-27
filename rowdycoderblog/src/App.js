@@ -25,8 +25,10 @@ const list = [
   },
 ];
 
-const isSearched = searchTerm=> item=>
+/*
+  const isSearched = searchTerm=> item=>
   item.title.toLowerCase().includes(searchTerm.toLowerCase());
+*/
 
 class App extends Component {
   constructor(props) {
@@ -35,9 +37,25 @@ class App extends Component {
       result:null,
       searchTerm:DEFAULT_QUERY,
     };
+
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
+    this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
+    this.onSearchSubmit = this.onSearchSubmit.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
+  }
+
+  fetchSearchTopStories(searchTerm) {
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+    .then(response=>response.json())
+    .then(result=>this.setSearchTopStories(result))
+    .catch(error=>error);
+  }
+
+  onSearchSubmit(event) {
+    const {searchTerm} = this.state;
+    this.fetchSearchTopStories(searchTerm);
+    event.preventDefault();
   }
 
   setSearchTopStories(result) {
@@ -47,10 +65,7 @@ class App extends Component {
   componentDidMount() {
     const {searchTerm} = this.state;
 
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
-    .then(response=>response.json())
-    .then(result=>this.setSearchTopStories(result))
-    .catch(error=>error);
+    this.fetchSearchTopStories(searchTerm);
   }
 
   onSearchChange(event) { //event has the value of the input field in its target object
@@ -78,6 +93,7 @@ class App extends Component {
         <Search
           value={searchTerm}
           onChange={this.onSearchChange}
+          onSubmit={this.onSearchSubmit}
         >
         Search
         </Search>
@@ -85,7 +101,7 @@ class App extends Component {
         { result ?
         <Table
           list={result.hits}
-          pattern={searchTerm}
+          //pattern={searchTerm}
           onDismiss={this.onDismiss}
         />
         : null
@@ -105,18 +121,21 @@ const Button = ({ onClick, className = '', children }) =>
   </button>
 
 
-const Search = ({value, onChange, children}) =>
-    <form>
-      {children} <input
-        typer="text"
-        value={value}
-        onChange={onChange}
-      />
-    </form>
+const Search = ({ value, onChange, onSubmit, children }) =>
+  <form onSubmit={onSubmit}>
+    <input
+      type="text"
+      value={value}
+      onChange={onChange}
+    />
+    <button type="submit">
+      {children}
+    </button>
+  </form>
 
 const Table = ({ list, pattern, onDismiss }) =>
   <div className="table">
-  {list.filter(isSearched(pattern)).map(item =>
+  {list.map(item =>
     <div key={item.objectID} className="table-row">
     <span style={{width:'40%'}}>
       <a href={item.url}>{item.title}</a>
