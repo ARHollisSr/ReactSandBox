@@ -59,8 +59,13 @@ class App extends Component {
 
   onDismiss(id) {
     const isNotId = item => item.objectID !== id;
-    const updatedList = this.state.list.filter(isNotId);
-    this.setState({ list: updatedList });
+    const updatedHits = this.state.result.hits.filter(isNotId);
+    this.setState({
+      //spread example
+      //result: Object.assign({}, this.state.result, { hits: updatedHits })
+      //Object spread - not in ES6 - propsed new feature but avail to React
+      result: {...this.state.result, hits:updatedHits}
+    });
   }
 
   render() {
@@ -77,11 +82,14 @@ class App extends Component {
         Search
         </Search>
         </div>
+        { result ?
         <Table
           list={result.hits}
           pattern={searchTerm}
           onDismiss={this.onDismiss}
         />
+        : null
+        }
       </div>
     );
   }
