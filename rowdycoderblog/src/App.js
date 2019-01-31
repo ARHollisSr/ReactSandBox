@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '100';
-const PATH_BASE = 'http://hn.algolia.com/api/v1';
+const PATH_BASE = 'http://hn.algolia.com/api/v9';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
@@ -40,6 +40,7 @@ class App extends Component {
       results:null,
       searchKey:'',
       searchTerm:DEFAULT_QUERY,
+      error: null,
     };
     console.log("RESULTS: " + this.state.results);
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
@@ -58,7 +59,7 @@ class App extends Component {
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
     .then(response=>response.json())
     .then(result=>this.setSearchTopStories(result))
-    .catch(error=>error);
+    .catch(error=>this.setState({error}));
   }
 
   onSearchSubmit(event) {
@@ -103,11 +104,12 @@ class App extends Component {
   }
 
   render() {
-    const { searchTerm, results, searchKey } = this.state;
+    const { searchTerm, results, searchKey, error } = this.state;
     const page = (results && results[searchKey] && results[searchKey].page) || 0;
     const list =( results && results[searchKey] && results[searchKey].hits) || [];
+
     console.log(this.state);
-    if(!results) {return null;}
+    //if(!results) {return null;}    
     return (
       <div className="page">
       <div className="interactions">
@@ -126,12 +128,22 @@ class App extends Component {
         />
         : null
         }
+        {error ? 
+          <div className="interactions">
+            <p>Something went wrong.</p>
+          </div>
+          : <Table
+            list={list}
+            onDismiss={this.onDismiss}
+          />
+        }
         <div className="interactions">
           <Button onClick={()=>
           this.fetchSearchTopStories(searchKey, page + 1)}>
           More
           </Button>
         </div>
+        
       </div>
     );
   }
